@@ -73,6 +73,7 @@ github-branch-source:2.3.4
 github-oauth:0.29
 github-organization-folder:1.6
 github:1.29.0
+gitlab-plugin:1.5.10
 global-build-stats:1.5
 greenballs:1.15
 groovy:2.0
