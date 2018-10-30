@@ -64,7 +64,6 @@ environment-dashboard:1.1.7
 extensible-choice-parameter:1.5.0
 favorite:2.3.2
 gatling:1.2.2
-gerrit-trigger:2.27.5
 git-client:2.7.2
 git-server:1.7
 git:3.9.0
