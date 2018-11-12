@@ -1,16 +1,19 @@
 #!/bin/bash
 
-echo "Genarate JENKINS SSH KEY"
+context="gitlab"
+gitlab_protocol="ssh"
+gitlab_protocol_2="http"
 host=$GITLAB_HOST
 port=$GITLAB_PORT
 gitlab_provider_id="adop-gitlab"
-gitlab_protocol="ssh"
+
+echo "Genarate JENKINS SSH KEY"
 nohup /usr/share/jenkins/ref/adop\_scripts/generate_key.sh -c ${host} -p ${port} &
 
 echo "Setting up your default SCM provider - Gitlab..."
 mkdir -p $PLUGGABLE_SCM_PROVIDER_PROPERTIES_PATH $PLUGGABLE_SCM_PROVIDER_PATH
 mkdir -p ${PLUGGABLE_SCM_PROVIDER_PROPERTIES_PATH}/CartridgeLoader ${PLUGGABLE_SCM_PROVIDER_PROPERTIES_PATH}/ScmProviders
-nohup /usr/share/jenkins/ref/adop\_scripts/generate_gitlab_scm.sh -i ${gitlab_provider_id} -p ${gitlab_protocol} -h ${host} &
+nohup /usr/share/jenkins/ref/adop\_scripts/generate_gitlab_scm.sh -i ${gitlab_provider_id} -p ${gitlab_protocol} -p ${gitlab_protocol_2} -h ${host} -ctx {context} &
 
 echo "Generate Sonar authentication token"
 source /usr/share/jenkins/ref/adop\_scripts/generate_sonar_auth_token.sh

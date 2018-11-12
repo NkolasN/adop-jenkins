@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 # Usage
 usage() {
     echo "Usage:"
-    echo "    ${0} -i <loader_id> -p <protocol> -h <host>"
+    echo "    ${0} -i <loader_id> -p <protocol1> -p <protocol2> -h <host> -ctx <context>"
     exit 1
 }
 
@@ -15,17 +15,21 @@ SCM_PROVIDERS_PATH="${PLUGGABLE_SCM_PROVIDER_PROPERTIES_PATH}/ScmProviders"
 GITLAB_SSH_USER=$GITLAB_JENKINS_USERNAME
 GITLAB_URL=$(echo ${ROOT_URL} | sed "s/jenkins/${GITLAB_HOST_NAME}/g")
 
+protocols=()
 while getopts "i:p:h:" opt; do
   case $opt in
     i)
       loader_id=${OPTARG}
       ;;
     p)
-      protocol=${OPTARG}
+      protocols+=(${OPTARG})
       ;;
     h)
       host=${OPTARG}
       ;;
+    ctx)
+      context=${OPTARG}
+      ;;  
     *)
       echo "Invalid parameter(s) or option(s)."
       usage
@@ -33,7 +37,7 @@ while getopts "i:p:h:" opt; do
   esac
 done
 
-if [ -z "${loader_id}" ] || [ -z "${protocol}" ] || [ -z "${host}" ]; then
+if [ -z "${loader_id}" ] || [ -z "${protocols}" ] || [ -z "${host}" ] || [ -z "${context}" ]; then
     echo "Parameters missing"
     usage
 fi
@@ -47,29 +51,48 @@ gitlab.endpoint=${host}
 gitlab.user=${GITLAB_SSH_USER}
 gitlab.port=${GITLAB_SSH_PORT}
 gitlab.protocol=ssh
+gitlab.context=${context}
 EOF
 
 # Setup SCM Provider properties
-GITLAB_PROVIDER_ID=${loader_id}-{protocol}
-case $protocol in
-ssh)
-  PROPS_FILE=${SCM_PROVIDERS_PATH}/${loader_id}-${protocol}.props
-  touch $PROPS_FILE
+for protocol in "${protocols[@]}"
+do
+ case $protocol in
+ ssh)
+   PROPS_FILE=${SCM_PROVIDERS_PATH}/${loader_id}-${protocol}.props
+   touch $PROPS_FILE
 
-cat > $PROPS_FILE <<EOF
-scm.loader.id=${loader_id}
-scm.id=${loader_id}-ssh
-scm.type=${SCM_TYPE}
-scm.protocol=ssh
-scm.port=${GITLAB_PORT}
-scm.host=${host}
-scm.url=${GITLAB_URL}
+   cat > $PROPS_FILE <<EOF
+   scm.loader.id=${loader_id}
+   scm.id=${loader_id}-ssh
+   scm.type=${SCM_TYPE}
+   scm.protocol=ssh
+   scm.port=${GITLAB_PORT}
+   scm.host=${host}
+   scm.url=${GITLAB_URL}
+EOF
+ ;;
 
+ http)
+   PROPS_FILE=${SCM_PROVIDERS_PATH}/${loader_id}-${protocol}.props
+   touch $PROPS_FILE
+
+   cat > $PROPS_FILE <<EOF
+   scm.loader.id=${loader_id}
+   scm.id=${loader_id}-http 
+   scm.type=gitlab 
+   scm.protocol=http 
+   scm.port=${GITLAB_PORT}
+   scm.host=${host}
+   scm.context=${context}
+   scm.url=http://gitlab/gitlab/ 
 EOF
   ;;
 *)
-  echo "Invalid protocol: Must use ssh"
+  echo "Invalid protocol: Must use http or ssh"
   usage
   ;;
 esac
+
+done
 
