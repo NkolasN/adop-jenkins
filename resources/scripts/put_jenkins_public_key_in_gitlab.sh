@@ -6,7 +6,7 @@
 
 PUBLIC_KEY="$(cat /var/jenkins_home/userContent/id_rsa.pub)"
 PRIVATE_TOKEN=$GITLAB_AUTH_TOKEN
-PUBLIC_KEY_NAME="Jenkins"
+PUBLIC_KEY_NAME="adop-jenkins-master"
 
 if [ -z "$PRIVATE_TOKEN" ]
 then 

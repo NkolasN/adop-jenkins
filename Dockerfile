@@ -3,7 +3,7 @@ FROM jenkins/jenkins:2.107.3
 MAINTAINER Nick Griffin, <nicholas.griffin>
 
 ENV GITLAB_HOST_NAME gitlab
-ENV GITLAB_PORT 8080
+ENV GITLAB_PORT 80
 ENV GITLAB_SSH_PORT 22
 
 # Copy in configuration files
